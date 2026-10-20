@@ -1,0 +1,415 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { LanguageProvider, useLanguage, toBengaliNumerals } from './context/LanguageContext';
+import { INITIAL_LISTINGS, INITIAL_LEADS } from './data/mirsaraiData';
+import Navbar from './components/Navbar';
+import StatsCards from './components/StatsCards';
+import FilterBar from './components/FilterBar';
+import ListingCard from './components/ListingCard';
+import TableView from './components/TableView';
+import AnalyticsDashboard from './components/AnalyticsDashboard';
+import LeadsManager from './components/LeadsManager';
+import PublicPortalView from './components/PublicPortalView';
+import ListingModal from './components/ListingModal';
+import ListingDetailModal from './components/ListingDetailModal';
+import NewLeadModal from './components/NewLeadModal';
+import Footer from './components/Footer';
+import { Home, PlusCircle, CheckCircle, AlertTriangle } from 'lucide-react';
+
+function DashboardApp() {
+  const { lang, t } = useLanguage();
+
+  // 1. Listings State (LocalStorage persisted)
+  const [listings, setListings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('tolet_mirsarai_listings');
+      return saved ? JSON.parse(saved) : INITIAL_LISTINGS;
+    } catch {
+      return INITIAL_LISTINGS;
+    }
+  });
+
+  // 2. Leads State (LocalStorage persisted)
+  const [leads, setLeads] = useState(() => {
+    try {
+      const saved = localStorage.getItem('tolet_mirsarai_leads');
+      return saved ? JSON.parse(saved) : INITIAL_LEADS;
+    } catch {
+      return INITIAL_LEADS;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('tolet_mirsarai_listings', JSON.stringify(listings));
+  }, [listings]);
+
+  useEffect(() => {
+    localStorage.setItem('tolet_mirsarai_leads', JSON.stringify(leads));
+  }, [leads]);
+
+  // Tab State: 'listings' | 'table' | 'analytics' | 'leads' | 'public'
+  const [currentTab, setCurrentTab] = useState('listings');
+
+  // Filter & Sort State
+  const [filters, setFilters] = useState({
+    search: '',
+    locality: 'all',
+    propertyType: 'all',
+    tenant: 'all',
+    status: 'all',
+    bedrooms: 'all',
+    minRent: '',
+    maxRent: '',
+    amenities: []
+  });
+
+  const [sortBy, setSortBy] = useState('newest');
+
+  // Modal States
+  const [isListingModalOpen, setIsListingModalOpen] = useState(false);
+  const [editingListing, setEditingListing] = useState(null);
+  const [detailListing, setDetailListing] = useState(null);
+  const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
+  const [leadTargetListing, setLeadTargetListing] = useState(null);
+
+  // Toast Notification
+  const [toastMessage, setToastMessage] = useState(null);
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  // CRUD Handlers for Listings
+  const handleSaveListing = (listingData) => {
+    if (editingListing) {
+      setListings((prev) => prev.map((l) => (l.id === listingData.id ? listingData : l)));
+      showToast(t('listingUpdated'));
+    } else {
+      setListings((prev) => [listingData, ...prev]);
+      showToast(t('listingCreated'));
+    }
+    setEditingListing(null);
+  };
+
+  const handleDeleteListing = (id) => {
+    if (window.confirm(t('confirmDelete'))) {
+      setListings((prev) => prev.filter((l) => l.id !== id));
+      showToast(t('listingDeleted'));
+    }
+  };
+
+  const handleToggleStatus = (id) => {
+    setListings((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          const nextStatus = item.status === 'available' ? 'rented' : 'available';
+          return { ...item, status: nextStatus };
+        }
+        return item;
+      })
+    );
+    showToast(t('statusUpdated'));
+  };
+
+  // CRUD Handlers for Leads
+  const handleSaveLead = (newLead) => {
+    setLeads((prev) => [newLead, ...prev]);
+    showToast(t('leadAdded'));
+  };
+
+  const handleUpdateLeadStatus = (id, newStatus) => {
+    setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status: newStatus } : l)));
+    showToast(t('statusUpdated'));
+  };
+
+  const handleDeleteLead = (id) => {
+    setLeads((prev) => prev.filter((l) => l.id !== id));
+  };
+
+  // Reset to Sample Mirsarai Data
+  const handleResetData = () => {
+    if (window.confirm(t('confirmReset'))) {
+      setListings(INITIAL_LISTINGS);
+      setLeads(INITIAL_LEADS);
+      showToast(lang === 'bn' ? 'মীরসরাই ডেমো ডেটায় রিসেট সম্পন্ন হয়েছে!' : 'Data reset to Mirsarai sample defaults!');
+    }
+  };
+
+  // Export Data (CSV and JSON)
+  const handleExportData = () => {
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify({ listings, leads }, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute('download', `tolet_mirsarai_data_${new Date().toISOString().split('T')[0]}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    showToast(t('dataExported'));
+  };
+
+  // Filter & Sort Logic
+  const filteredListings = useMemo(() => {
+    return listings.filter((item) => {
+      // 1. Search (Title, locality, address, owner)
+      if (filters.search) {
+        const query = filters.search.toLowerCase();
+        const searchTarget = `${item.titleEn} ${item.titleBn} ${item.localityName} ${item.localityNameBn} ${item.address} ${item.addressBn} ${item.ownerName} ${item.ownerPhone}`.toLowerCase();
+        if (!searchTarget.includes(query)) return false;
+      }
+
+      // 2. Locality
+      if (filters.locality !== 'all' && item.localityId !== filters.locality) {
+        return false;
+      }
+
+      // 3. Property Type
+      if (filters.propertyType !== 'all' && item.propertyType !== filters.propertyType) {
+        return false;
+      }
+
+      // 4. Tenant Preference
+      if (filters.tenant !== 'all' && item.tenantPreference !== filters.tenant && item.tenantPreference !== 'anyTenant') {
+        return false;
+      }
+
+      // 5. Status
+      if (filters.status !== 'all' && item.status !== filters.status) {
+        return false;
+      }
+
+      // 6. Bedrooms
+      if (filters.bedrooms !== 'all') {
+        if (filters.bedrooms === '4') {
+          if (item.bedrooms < 4) return false;
+        } else if (String(item.bedrooms) !== filters.bedrooms) {
+          return false;
+        }
+      }
+
+      // 7. Price Range
+      if (filters.minRent && Number(item.rentAmount) < Number(filters.minRent)) {
+        return false;
+      }
+      if (filters.maxRent && Number(item.rentAmount) > Number(filters.maxRent)) {
+        return false;
+      }
+
+      // 8. Amenities (must include all selected)
+      if (filters.amenities && filters.amenities.length > 0) {
+        const hasAll = filters.amenities.every((aId) => item.amenities && item.amenities.includes(aId));
+        if (!hasAll) return false;
+      }
+
+      return true;
+    }).sort((a, b) => {
+      if (sortBy === 'rentLow') return a.rentAmount - b.rentAmount;
+      if (sortBy === 'rentHigh') return b.rentAmount - a.rentAmount;
+      if (sortBy === 'sizeHigh') return b.sqft - a.sqft;
+      // default: newest first
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    });
+  }, [listings, filters, sortBy]);
+
+  // Open modal helpers
+  const handleOpenEdit = (listing) => {
+    setEditingListing(listing);
+    setIsListingModalOpen(true);
+  };
+
+  const handleOpenAdd = () => {
+    setEditingListing(null);
+    setIsListingModalOpen(true);
+  };
+
+  const handleInquire = (listing) => {
+    setLeadTargetListing(listing);
+    setIsNewLeadModalOpen(true);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-slate-100/60 font-sans">
+      {/* Toast Notification Alert */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 text-xs font-semibold animate-in slide-in-from-bottom duration-200">
+          <CheckCircle className="w-4 h-4 text-emerald-400" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Main Top Navigation */}
+      <Navbar
+        currentTab={currentTab}
+        setCurrentTab={setCurrentTab}
+        onOpenAddModal={handleOpenAdd}
+        onResetData={handleResetData}
+        onExportData={handleExportData}
+        totalListings={listings.length}
+        activeLeadsCount={leads.filter((l) => l.status !== 'converted' && l.status !== 'cancelled').length}
+      />
+
+      {/* Main Container */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {/* Render Tab Contents */}
+        {currentTab === 'listings' && (
+          <div className="space-y-6">
+            {/* Stat Cards & Quick Filter Chips */}
+            <StatsCards
+              listings={listings}
+              leads={leads}
+              filters={filters}
+              setFilters={setFilters}
+              onSelectLeadTab={() => setCurrentTab('leads')}
+            />
+
+            {/* Filter Bar */}
+            <FilterBar
+              filters={filters}
+              setFilters={setFilters}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              totalResults={filteredListings.length}
+              totalCount={listings.length}
+            />
+
+            {/* Listings Grid */}
+            {filteredListings.length === 0 ? (
+              <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 space-y-4">
+                <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto">
+                  <Home className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-800">
+                    {lang === 'bn' ? 'কোনো বাড়ি বা ফ্ল্যাট পাওয়া যায়নি' : 'No properties found'}
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                    {lang === 'bn' 
+                      ? 'আপনার ফিল্টারের শর্তাবলী শিথিল করুন অথবা নতুন প্রপার্টির বিজ্ঞাপন দিন।' 
+                      : 'Try broadening your filter criteria or add a new property listing.'}
+                  </p>
+                </div>
+                <button
+                  onClick={handleOpenAdd}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-colors inline-flex items-center gap-1.5"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  <span>{t('addListing')}</span>
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {filteredListings.map((item) => (
+                  <ListingCard
+                    key={item.id}
+                    listing={item}
+                    onViewDetails={(l) => setDetailListing(l)}
+                    onEdit={handleOpenEdit}
+                    onDelete={handleDeleteListing}
+                    onToggleStatus={handleToggleStatus}
+                    onInquire={handleInquire}
+                    isPublicView={false}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {currentTab === 'table' && (
+          <div className="space-y-6">
+            <StatsCards
+              listings={listings}
+              leads={leads}
+              filters={filters}
+              setFilters={setFilters}
+              onSelectLeadTab={() => setCurrentTab('leads')}
+            />
+            <TableView
+              listings={listings}
+              onViewDetails={(l) => setDetailListing(l)}
+              onEdit={handleOpenEdit}
+              onDelete={handleDeleteListing}
+              onToggleStatus={handleToggleStatus}
+            />
+          </div>
+        )}
+
+        {currentTab === 'analytics' && (
+          <AnalyticsDashboard
+            listings={listings}
+            leads={leads}
+          />
+        )}
+
+        {currentTab === 'leads' && (
+          <LeadsManager
+            leads={leads}
+            onUpdateStatus={handleUpdateLeadStatus}
+            onDeleteLead={handleDeleteLead}
+            onOpenNewLeadModal={() => {
+              setLeadTargetListing(null);
+              setIsNewLeadModalOpen(true);
+            }}
+            listings={listings}
+          />
+        )}
+
+        {currentTab === 'public' && (
+          <PublicPortalView
+            listings={filteredListings}
+            filters={filters}
+            setFilters={setFilters}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            onViewDetails={(l) => setDetailListing(l)}
+            onInquire={handleInquire}
+            onExitPreview={() => setCurrentTab('listings')}
+          />
+        )}
+      </main>
+
+      {/* Global Modals */}
+      <ListingModal
+        isOpen={isListingModalOpen}
+        onClose={() => {
+          setIsListingModalOpen(false);
+          setEditingListing(null);
+        }}
+        onSave={handleSaveListing}
+        editingListing={editingListing}
+      />
+
+      <ListingDetailModal
+        listing={detailListing}
+        onClose={() => setDetailListing(null)}
+        onInquire={handleInquire}
+      />
+
+      <NewLeadModal
+        isOpen={isNewLeadModalOpen}
+        onClose={() => {
+          setIsNewLeadModalOpen(false);
+          setLeadTargetListing(null);
+        }}
+        onSave={handleSaveLead}
+        listings={listings}
+        preselectedListing={leadTargetListing}
+      />
+
+      {/* Footer */}
+      <Footer
+        onSelectLocality={(locId) => {
+          setFilters((prev) => ({ ...prev, locality: locId }));
+          setCurrentTab('listings');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <DashboardApp />
+    </LanguageProvider>
+  );
+}
