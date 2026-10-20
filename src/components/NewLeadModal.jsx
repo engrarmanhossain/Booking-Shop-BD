@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import { X, UserPlus, Building, Phone, Calendar } from 'lucide-react';
 
 export default function NewLeadModal({ 
@@ -10,20 +11,38 @@ export default function NewLeadModal({
   preselectedListing = null 
 }) {
   const { lang, t } = useLanguage();
+  const { currentUser } = useAuth();
 
   const [formData, setFormData] = useState({
     tenantName: '',
     tenantPhone: '',
     tenantProfession: '',
-    propertyId: preselectedListing ? preselectedListing.id : (listings[0]?.id || ''),
-    propertyTitle: preselectedListing ? (lang === 'bn' ? preselectedListing.titleBn : preselectedListing.titleEn) : '',
-    budget: preselectedListing ? preselectedListing.rentAmount : '',
+    propertyId: '',
+    propertyTitle: '',
+    budget: '',
     desiredMoveIn: 'Immediate',
     status: 'new',
     notes: ''
   });
 
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        tenantName: currentUser ? currentUser.name : '',
+        tenantPhone: currentUser ? (currentUser.phone || currentUser.email) : '',
+        tenantProfession: '',
+        propertyId: preselectedListing ? preselectedListing.id : (listings[0]?.id || ''),
+        propertyTitle: preselectedListing ? (lang === 'bn' ? preselectedListing.titleBn : preselectedListing.titleEn) : '',
+        budget: preselectedListing ? preselectedListing.rentAmount : '',
+        desiredMoveIn: 'Immediate',
+        status: 'new',
+        notes: ''
+      });
+      setError('');
+    }
+  }, [isOpen, preselectedListing, currentUser, listings, lang]);
 
   if (!isOpen) return null;
 
@@ -95,7 +114,7 @@ export default function NewLeadModal({
                 {t('tenantPhone')} <span className="text-rose-500">*</span>
               </label>
               <input
-                type="tel"
+                type="text"
                 required
                 value={formData.tenantPhone}
                 onChange={(e) => setFormData({ ...formData, tenantPhone: e.target.value })}

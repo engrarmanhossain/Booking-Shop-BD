@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { LanguageProvider, useLanguage, toBengaliNumerals } from './context/LanguageContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { INITIAL_LISTINGS, INITIAL_LEADS } from './data/mirsaraiData';
 import Navbar from './components/Navbar';
 import StatsCards from './components/StatsCards';
@@ -12,11 +13,13 @@ import PublicPortalView from './components/PublicPortalView';
 import ListingModal from './components/ListingModal';
 import ListingDetailModal from './components/ListingDetailModal';
 import NewLeadModal from './components/NewLeadModal';
+import AuthModal from './components/AuthModal';
 import Footer from './components/Footer';
-import { Home, PlusCircle, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Home, PlusCircle, CheckCircle, ShieldCheck, Sparkles, AlertCircle } from 'lucide-react';
 
 function DashboardApp() {
   const { lang, t } = useLanguage();
+  const { currentUser, isAdmin, isLandlord } = useAuth();
 
   // 1. Listings State (LocalStorage persisted)
   const [listings, setListings] = useState(() => {
@@ -71,11 +74,20 @@ function DashboardApp() {
   const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
   const [leadTargetListing, setLeadTargetListing] = useState(null);
 
+  // Auth Modal State
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState('login');
+
   // Toast Notification
   const [toastMessage, setToastMessage] = useState(null);
   const showToast = (msg) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleOpenAuth = (mode = 'login') => {
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
   };
 
   // CRUD Handlers for Listings
@@ -91,6 +103,11 @@ function DashboardApp() {
   };
 
   const handleDeleteListing = (id) => {
+    if (!currentUser) {
+      showToast(t('loginRequiredNotice'));
+      handleOpenAuth('login');
+      return;
+    }
     if (window.confirm(t('confirmDelete'))) {
       setListings((prev) => prev.filter((l) => l.id !== id));
       showToast(t('listingDeleted'));
@@ -134,7 +151,7 @@ function DashboardApp() {
     }
   };
 
-  // Export Data (CSV and JSON)
+  // Export Data (JSON)
   const handleExportData = () => {
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify({ listings, leads }, null, 2));
     const downloadAnchor = document.createElement('a');
@@ -149,7 +166,7 @@ function DashboardApp() {
   // Filter & Sort Logic
   const filteredListings = useMemo(() => {
     return listings.filter((item) => {
-      // 1. Search (Title, locality, address, owner)
+      // 1. Search
       if (filters.search) {
         const query = filters.search.toLowerCase();
         const searchTarget = `${item.titleEn} ${item.titleBn} ${item.localityName} ${item.localityNameBn} ${item.address} ${item.addressBn} ${item.ownerName} ${item.ownerPhone}`.toLowerCase();
@@ -193,7 +210,7 @@ function DashboardApp() {
         return false;
       }
 
-      // 8. Amenities (must include all selected)
+      // 8. Amenities
       if (filters.amenities && filters.amenities.length > 0) {
         const hasAll = filters.amenities.every((aId) => item.amenities && item.amenities.includes(aId));
         if (!hasAll) return false;
@@ -204,18 +221,27 @@ function DashboardApp() {
       if (sortBy === 'rentLow') return a.rentAmount - b.rentAmount;
       if (sortBy === 'rentHigh') return b.rentAmount - a.rentAmount;
       if (sortBy === 'sizeHigh') return b.sqft - a.sqft;
-      // default: newest first
       return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
     });
   }, [listings, filters, sortBy]);
 
   // Open modal helpers
   const handleOpenEdit = (listing) => {
+    if (!currentUser) {
+      showToast(t('loginRequiredNotice'));
+      handleOpenAuth('login');
+      return;
+    }
     setEditingListing(listing);
     setIsListingModalOpen(true);
   };
 
   const handleOpenAdd = () => {
+    if (!currentUser) {
+      showToast(t('loginRequiredNotice'));
+      handleOpenAuth('login');
+      return;
+    }
     setEditingListing(null);
     setIsListingModalOpen(true);
   };
@@ -242,9 +268,29 @@ function DashboardApp() {
         onOpenAddModal={handleOpenAdd}
         onResetData={handleResetData}
         onExportData={handleExportData}
+        onOpenAuthModal={handleOpenAuth}
         totalListings={listings.length}
         activeLeadsCount={leads.filter((l) => l.status !== 'converted' && l.status !== 'cancelled').length}
       />
+
+      {/* Admin Logged-In Top Status Banner */}
+      {isAdmin && (
+        <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white px-4 py-2 text-xs font-medium border-b border-purple-500/30">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-purple-300 shrink-0" />
+              <span>
+                {lang === 'bn' 
+                  ? 'অ্যাডমিন মোড সক্রিয়: আরমান হোসেন (armanhossain.eee.info@gmail.com) • পূর্ণ নিয়ন্ত্রণ ও সম্পাদনার ক্ষমতা'
+                  : 'Administrator Mode Active: Engr. Arman Hossain (armanhossain.eee.info@gmail.com) • Full system access'}
+              </span>
+            </div>
+            <span className="hidden sm:inline-block px-2 py-0.5 bg-purple-500/30 text-purple-200 rounded-md text-[10px] font-bold">
+              SUPER ADMIN
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
@@ -394,6 +440,13 @@ function DashboardApp() {
         preselectedListing={leadTargetListing}
       />
 
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        initialMode={authModalMode}
+        onSuccess={(msg) => showToast(msg)}
+      />
+
       {/* Footer */}
       <Footer
         onSelectLocality={(locId) => {
@@ -409,7 +462,9 @@ function DashboardApp() {
 export default function App() {
   return (
     <LanguageProvider>
-      <DashboardApp />
+      <AuthProvider>
+        <DashboardApp />
+      </AuthProvider>
     </LanguageProvider>
   );
 }
