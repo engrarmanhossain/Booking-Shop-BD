@@ -55,7 +55,7 @@ export default function Navbar({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xl font-bold tracking-tight text-slate-900 font-sans">
-                  {lang === 'bn' ? 'টু-লেট মীরসরাই' : 'To-Let Mirsarai'}
+                  {lang === 'bn' ? 'বুকিং শপ বিডি' : 'Booking Shop BD'}
                 </span>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full border border-blue-200">
                   {lang === 'bn' ? 'পৌর ও ইউনিয়ন' : 'Mirsarai Hub'}

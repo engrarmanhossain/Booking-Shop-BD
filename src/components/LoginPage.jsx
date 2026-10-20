@@ -82,7 +82,7 @@ export default function LoginPage({ onEnterAsGuest, onSuccess }) {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xl font-bold tracking-tight text-white">
-                {lang === 'bn' ? 'টু-লেট মীরসরাই' : 'To-Let Mirsarai'}
+                {lang === 'bn' ? 'বুকিং শপ বিডি' : 'Booking Shop BD'}
               </span>
               <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-blue-500/20 text-blue-300 rounded-full border border-blue-400/30">
                 {lang === 'bn' ? 'পৌর ও ইউনিয়ন' : 'Mirsarai Hub'}
@@ -364,7 +364,7 @@ export default function LoginPage({ onEnterAsGuest, onSuccess }) {
       {/* Footer */}
       <footer className="relative z-10 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 border-t border-slate-900 text-slate-500 text-xs flex flex-col sm:flex-row items-center justify-between gap-2">
         <div>
-          © {new Date().getFullYear()} To-Let Mirsarai • Mirsarai Upazila Property Hub
+          © {new Date().getFullYear()} Booking Shop BD • Mirsarai Upazila Property Hub
         </div>
         <div>
           <span>{t('trustedBy')}</span>

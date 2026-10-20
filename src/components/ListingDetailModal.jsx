@@ -37,7 +37,7 @@ export default function ListingDetailModal({ listing, onClose, onInquire }) {
     if (navigator.share) {
       navigator.share({
         title: title,
-        text: `To-Let Mirsarai: ${title} - ${formatCurrency(listing.rentAmount)}`,
+        text: `Booking Shop BD: ${title} - ${formatCurrency(listing.rentAmount)}`,
         url: window.location.href,
       }).catch(() => {});
     } else {

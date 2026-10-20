@@ -1,8 +1,8 @@
 export const translations = {
   en: {
     // Brand
-    brandName: "To-Let Mirsarai",
-    brandSubtitle: "House Rent & Property Hub for Mirsarai Upazila",
+    brandName: "Booking Shop BD",
+    brandSubtitle: "House Rent & Property Booking Hub for Mirsarai Upazila",
     economicZoneBadge: "Near Mirsarai Economic Zone (BEZA)",
 
     // Navigation & Tabs
@@ -20,7 +20,7 @@ export const translations = {
     welcome: "Welcome",
 
     // Auth Modal & Roles
-    loginTitle: "Sign In to To-Let Mirsarai",
+    loginTitle: "Sign In to Booking Shop BD",
     registerTitle: "Create New Account",
     authSubtitle: "Access your property listings, tenant leads, and favorites",
     phoneOrEmail: "Email or Phone Number",
@@ -198,8 +198,8 @@ export const translations = {
 
   bn: {
     // Brand
-    brandName: "টু-লেট মীরসরাই",
-    brandSubtitle: "মীরসরাই উপজেলার বাড়ি ও ফ্ল্যাট ভাড়ার সম্পূর্ণ ড্যাশবোর্ড",
+    brandName: "বুকিং শপ বিডি",
+    brandSubtitle: "মীরসরাই উপজেলার বাড়ি ও প্রপার্টি বুকিং পোর্টাল",
     economicZoneBadge: "বঙ্গবন্ধু শিল্পনগর (বেজা) সংলগ্ন",
 
     // Navigation & Tabs
@@ -217,7 +217,7 @@ export const translations = {
     welcome: "স্বাগতম",
 
     // Auth Modal & Roles
-    loginTitle: "টু-লেট মীরসরাইতে লগইন করুন",
+    loginTitle: "বুকিং শপ বিডিতে লগইন করুন",
     registerTitle: "নতুন অ্যাকাউন্ট তৈরি করুন",
     authSubtitle: "আপনার প্রপার্টি ও ভাড়াটিয়ার তথ্য নিরাপদে পরিচালনা করুন",
     phoneOrEmail: "মোবাইল নম্বর অথবা ইমেইল",

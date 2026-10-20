@@ -1,4 +1,4 @@
-# To-Let Mirsarai | বাড়ি ভাড়া ড্যাশবোর্ড ও প্রপার্টি পোর্টাল 🏠
+# Booking Shop BD | বাড়ি ও প্রপার্টি বুকিং পোর্টাল 🏠
 
 A modern, fast, and feature-rich **House Rental Dashboard & Property Portal** built specifically for **Mirsarai Upazila, Chattogram, Bangladesh** — tailored for local landlords, bachelor job-holders, families, and executives working at the **Bangabandhu Sheikh Mujib Shilpa Nagar (BEZA / Mirsarai Economic Zone)**.
 

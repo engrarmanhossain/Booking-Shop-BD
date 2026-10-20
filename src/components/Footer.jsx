@@ -13,7 +13,7 @@ export default function Footer({ onSelectLocality }) {
           <div className="space-y-3 md:col-span-1">
             <div className="flex items-center gap-2 text-white font-bold text-base">
               <Building2 className="w-5 h-5 text-blue-500" />
-              <span>{lang === 'bn' ? 'টু-লেট মীরসরাই' : 'To-Let Mirsarai'}</span>
+              <span>{lang === 'bn' ? 'বুকিং শপ বিডি' : 'Booking Shop BD'}</span>
             </div>
             <p className="text-slate-400 leading-relaxed text-xs">
               {lang === 'bn'
@@ -102,7 +102,7 @@ export default function Footer({ onSelectLocality }) {
 
         <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-500 text-xs">
           <div>
-            © {new Date().getFullYear()} To-Let Mirsarai (টু-লেট মীরসরাই). All rights reserved.
+            © {new Date().getFullYear()} Booking Shop BD (বুকিং শপ বিডি). All rights reserved.
           </div>
           <div className="flex items-center gap-1">
             <span>Built for the people of Mirsarai</span>
