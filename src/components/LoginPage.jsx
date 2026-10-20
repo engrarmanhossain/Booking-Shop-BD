@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useAuth, DEFAULT_ADMIN } from '../context/AuthContext';
-import { useLanguage, toBengaliNumerals } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { 
   Building2, 
   LogIn, 
@@ -13,15 +13,11 @@ import {
   ShieldCheck, 
   Sparkles, 
   ArrowRight, 
-  CheckCircle2, 
-  MapPin, 
-  Compass,
-  KeyRound,
-  EyeIcon
+  MapPin
 } from 'lucide-react';
 
 export default function LoginPage({ onEnterAsGuest, onSuccess }) {
-  const { login, register, quickAdminLogin } = useAuth();
+  const { login, register } = useAuth();
   const { lang, toggleLang, t } = useLanguage();
 
   const [mode, setMode] = useState('login'); // 'login' | 'register'
@@ -68,15 +64,6 @@ export default function LoginPage({ onEnterAsGuest, onSuccess }) {
       } else {
         setError(res.message || t('invalidCredentials'));
       }
-    }
-  };
-
-  const handleAdminQuickFill = () => {
-    setIdentifier(DEFAULT_ADMIN.email);
-    setPassword(DEFAULT_ADMIN.password);
-    const res = quickAdminLogin();
-    if (res.success) {
-      if (onSuccess) onSuccess(lang === 'bn' ? 'অ্যাডমিন হিসেবে লগইন সফল হয়েছে!' : 'Logged in as Admin (Arman Hossain)!');
     }
   };
 
@@ -182,18 +169,6 @@ export default function LoginPage({ onEnterAsGuest, onSuccess }) {
                     {lang === 'bn' ? 'বারইয়ারহাট, জোরারগঞ্জ ও সদর' : 'Baraiyarhat, Sadar & BEZA'}
                   </span>
                 </div>
-              </div>
-            </div>
-
-            {/* Quick credentials hint box */}
-            <div className="p-4 bg-slate-900/80 border border-purple-500/30 rounded-2xl max-w-xl mx-auto lg:mx-0 text-left space-y-1.5">
-              <div className="flex items-center gap-2 text-xs font-bold text-purple-300">
-                <KeyRound className="w-3.5 h-3.5" />
-                <span>{lang === 'bn' ? 'অ্যাডমিন অ্যাকাউন্ট তথ্য' : 'System Admin Credentials'}</span>
-              </div>
-              <div className="text-xs text-slate-300 flex flex-wrap gap-x-4 gap-y-1">
-                <span>Email: <strong className="text-purple-200">armanhossain.eee.info@gmail.com</strong></span>
-                <span>Password: <strong className="text-purple-200 font-mono">arman2026**</strong></span>
               </div>
             </div>
           </div>
@@ -367,26 +342,6 @@ export default function LoginPage({ onEnterAsGuest, onSuccess }) {
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </form>
-
-              {/* 1-Click Quick Admin Login Button */}
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={handleAdminQuickFill}
-                  className="w-full py-2.5 px-3 bg-gradient-to-r from-purple-950/70 to-indigo-950/70 border border-purple-500/40 hover:border-purple-400 text-purple-200 rounded-xl text-xs font-bold transition-all flex items-center justify-between group shadow-sm"
-                >
-                  <div className="flex items-center gap-2 text-left">
-                    <ShieldCheck className="w-4 h-4 text-purple-400 shrink-0" />
-                    <div>
-                      <span className="block text-white font-bold">{t('quickAdminLogin')}</span>
-                      <span className="text-[10px] text-purple-300/80 font-normal">
-                        armanhossain.eee.info@gmail.com
-                      </span>
-                    </div>
-                  </div>
-                  <Sparkles className="w-4 h-4 text-amber-300 group-hover:scale-125 transition-transform" />
-                </button>
-              </div>
 
               {/* Browse as Guest Option */}
               {onEnterAsGuest && (

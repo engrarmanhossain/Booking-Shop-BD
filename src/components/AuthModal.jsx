@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth, DEFAULT_ADMIN } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { 
   X, 
@@ -10,15 +10,12 @@ import {
   Lock, 
   Eye, 
   EyeOff, 
-  ShieldCheck, 
   Building2, 
-  CheckCircle2,
-  Sparkles,
   ArrowRight
 } from 'lucide-react';
 
 export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess }) {
-  const { login, register, quickAdminLogin } = useAuth();
+  const { login, register } = useAuth();
   const { lang, t } = useLanguage();
 
   const [mode, setMode] = useState(initialMode); // 'login' | 'register'
@@ -69,16 +66,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSu
       } else {
         setError(res.message || t('invalidCredentials'));
       }
-    }
-  };
-
-  const handleAdminQuickFill = () => {
-    setIdentifier(DEFAULT_ADMIN.email);
-    setPassword(DEFAULT_ADMIN.password);
-    const res = quickAdminLogin();
-    if (res.success) {
-      if (onSuccess) onSuccess(lang === 'bn' ? 'অ্যাডমিন হিসেবে লগইন সফল হয়েছে!' : 'Logged in as Admin (Arman Hossain)!');
-      onClose();
     }
   };
 
@@ -185,9 +172,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSu
                 {identifier.includes('@') ? <Mail className="w-4 h-4" /> : <Phone className="w-4 h-4" />}
               </div>
             </div>
-            <p className="text-[11px] text-slate-400 mt-1">
-              {lang === 'bn' ? 'যেমন: 018... অথবা armanhossain.eee.info@gmail.com' : 'Enter either your phone or email'}
-            </p>
           </div>
 
           {/* Password Input */}
@@ -259,26 +243,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSu
             <span>{mode === 'login' ? t('login') : t('register')}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
-
-          {/* Quick Admin Login Pill */}
-          <div className="pt-2">
-            <button
-              type="button"
-              onClick={handleAdminQuickFill}
-              className="w-full py-2 px-3 bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 hover:border-purple-300 text-purple-900 rounded-xl text-xs font-bold transition-all flex items-center justify-between group shadow-2xs"
-            >
-              <div className="flex items-center gap-1.5 text-left">
-                <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0" />
-                <div>
-                  <span className="block">{t('quickAdminLogin')}</span>
-                  <span className="text-[10px] text-purple-600/80 font-normal">
-                    armanhossain.eee.info@gmail.com
-                  </span>
-                </div>
-              </div>
-              <Sparkles className="w-4 h-4 text-amber-500 group-hover:scale-110 transition-transform" />
-            </button>
-          </div>
 
           {/* Switch mode footer */}
           <div className="text-center pt-2 text-xs text-slate-500">
