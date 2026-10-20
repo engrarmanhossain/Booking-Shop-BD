@@ -2,8 +2,8 @@ export const translations = {
   en: {
     // Brand
     brandName: "Booking Shop BD",
-    brandSubtitle: "House Rent & Property Booking Hub for Mirsarai Upazila",
-    economicZoneBadge: "Near Mirsarai Economic Zone (BEZA)",
+    brandSubtitle: "House Rent & Property Booking Platform",
+    economicZoneBadge: "Verified Direct Listings",
 
     // Navigation & Tabs
     allListings: "All Listings",
@@ -199,8 +199,8 @@ export const translations = {
   bn: {
     // Brand
     brandName: "বুকিং শপ বিডি",
-    brandSubtitle: "মীরসরাই উপজেলার বাড়ি ও প্রপার্টি বুকিং পোর্টাল",
-    economicZoneBadge: "বঙ্গবন্ধু শিল্পনগর (বেজা) সংলগ্ন",
+    brandSubtitle: "বাড়ি ও প্রপার্টি বুকিং প্ল্যাটফর্ম",
+    economicZoneBadge: "১০০% যাচাইকৃত প্রপার্টি",
 
     // Navigation & Tabs
     allListings: "সকল প্রপার্টি",

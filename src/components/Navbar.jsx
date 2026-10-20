@@ -58,11 +58,11 @@ export default function Navbar({
                   {lang === 'bn' ? 'বুকিং শপ বিডি' : 'Booking Shop BD'}
                 </span>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full border border-blue-200">
-                  {lang === 'bn' ? 'পৌর ও ইউনিয়ন' : 'Mirsarai Hub'}
+                  {lang === 'bn' ? 'প্রপার্টি পোর্টাল' : 'Property Portal'}
                 </span>
               </div>
               <p className="text-xs text-slate-500 hidden sm:block">
-                {lang === 'bn' ? 'বারইয়ারহাট • শিল্পনগরী • জোরারগঞ্জ • সদর' : 'Baraiyarhat • Shilpa Nagar • Zorarganj • Sadar'}
+                {lang === 'bn' ? 'বাড়ি ও প্রপার্টি বুকিং পোর্টাল' : 'House & Property Booking Portal'}
               </p>
             </div>
           </div>
