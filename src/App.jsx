@@ -14,12 +14,16 @@ import ListingModal from './components/ListingModal';
 import ListingDetailModal from './components/ListingDetailModal';
 import NewLeadModal from './components/NewLeadModal';
 import AuthModal from './components/AuthModal';
+import LoginPage from './components/LoginPage';
 import Footer from './components/Footer';
-import { Home, PlusCircle, CheckCircle, ShieldCheck, Sparkles, AlertCircle } from 'lucide-react';
+import { Home, PlusCircle, CheckCircle, ShieldCheck, Sparkles, AlertCircle, ArrowLeft } from 'lucide-react';
 
 function DashboardApp() {
   const { lang, t } = useLanguage();
-  const { currentUser, isAdmin, isLandlord } = useAuth();
+  const { currentUser, isAdmin, isLandlord, logout } = useAuth();
+
+  // Guest Mode State: if not logged in and not in guest mode, show LoginPage
+  const [isGuestMode, setIsGuestMode] = useState(false);
 
   // 1. Listings State (LocalStorage persisted)
   const [listings, setListings] = useState(() => {
@@ -88,6 +92,12 @@ function DashboardApp() {
   const handleOpenAuth = (mode = 'login') => {
     setAuthModalMode(mode);
     setIsAuthModalOpen(true);
+  };
+
+  const handleLogout = () => {
+    setIsGuestMode(false);
+    logout();
+    showToast(t('logoutSuccess'));
   };
 
   // CRUD Handlers for Listings
@@ -251,6 +261,25 @@ function DashboardApp() {
     setIsNewLeadModalOpen(true);
   };
 
+  // OPENING PAGE CHECK:
+  // If user is not logged in and has not entered as guest, show the Opening Login Page!
+  if (!currentUser && !isGuestMode) {
+    return (
+      <>
+        {toastMessage && (
+          <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 text-xs font-semibold animate-in slide-in-from-bottom duration-200">
+            <CheckCircle className="w-4 h-4 text-emerald-400" />
+            <span>{toastMessage}</span>
+          </div>
+        )}
+        <LoginPage
+          onEnterAsGuest={() => setIsGuestMode(true)}
+          onSuccess={(msg) => showToast(msg)}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-100/60 font-sans">
       {/* Toast Notification Alert */}
@@ -258,6 +287,37 @@ function DashboardApp() {
         <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 text-xs font-semibold animate-in slide-in-from-bottom duration-200">
           <CheckCircle className="w-4 h-4 text-emerald-400" />
           <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Guest Mode Banner (if user skipped login) */}
+      {!currentUser && isGuestMode && (
+        <div className="bg-slate-900 text-white px-4 py-2 text-xs font-medium">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+              <span>
+                {lang === 'bn' 
+                  ? 'আপনি সাধারণ ভিজিটর মোডে আছেন। প্রপার্টি পোস্ট বা সম্পাদনা করতে লগইন করুন।' 
+                  : 'You are browsing in Guest Mode. Sign in to add or edit properties.'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsGuestMode(false)}
+                className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded-lg text-[11px] font-bold transition-colors flex items-center gap-1"
+              >
+                <ArrowLeft className="w-3 h-3" />
+                <span>{lang === 'bn' ? 'লগইন পেজে ফিরুন' : 'Back to Login Page'}</span>
+              </button>
+              <button
+                onClick={() => handleOpenAuth('login')}
+                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[11px] font-bold transition-colors"
+              >
+                {t('login')}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

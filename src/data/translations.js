@@ -45,6 +45,10 @@ export const translations = {
     logoutSuccess: "You have been logged out.",
     invalidCredentials: "Invalid email/phone or password. Please try again.",
     loginRequiredNotice: "Please log in as Admin or Landlord to perform this action.",
+    guestBrowse: "Browse as Guest (Skip for now)",
+    openingTitle: "Mirsarai House Rent Portal",
+    openingSubtitle: "Sign in to manage properties, track leads, and view market analytics",
+    trustedBy: "Trusted by landlords across Mirsarai, Baraiyarhat & BEZA Economic Zone",
 
     // Stat Cards
     totalProperties: "Total Properties",
@@ -238,6 +242,10 @@ export const translations = {
     logoutSuccess: "আপনি লগআউট হয়েছেন।",
     invalidCredentials: "ভুল ইমেইল/ফোন অথবা পাসওয়ার্ড। অনুগ্রহ করে আবার চেষ্টা করুন।",
     loginRequiredNotice: "বিজ্ঞাপন দিতে বা প্রপার্টি পরিচালনা করতে অ্যাডমিন বা বাড়িওয়ালা হিসেবে লগইন করুন।",
+    guestBrowse: "লগইন ছাড়া দেখুন (গেস্ট হিসেবে প্রবেশ)",
+    openingTitle: "মীরসরাই বাড়ি ভাড়া পোর্টাল",
+    openingSubtitle: "প্রপার্টি বিজ্ঞাপন দেওয়া, ভাড়াটিয়ার অনুসন্ধান ও মার্কেট অ্যানালিটিক্স দেখতে লগইন করুন",
+    trustedBy: "মীরসরাই, বারইয়ারহাট ও বেজা শিল্পনগরীর বাড়িওয়ালা ও ভাড়াটিয়াদের বিশ্বস্ত প্ল্যাটফর্ম",
 
     // Stat Cards
     totalProperties: "মোট প্রপার্টি",
